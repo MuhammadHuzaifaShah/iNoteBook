@@ -1,8 +1,14 @@
-const { paste } = require('@testing-library/user-event/dist/paste');
-const { type } = require('@testing-library/user-event/dist/type');
+// const { paste } = require('@testing-library/user-event/dist/paste');
+// const { type } = require('@testing-library/user-event/dist/type');
 const mongoose = require('mongoose');
+const { Schema } = mongoose;
+
 
 const NotesSchema = new Schema({
+    user:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user'
+    },
     title:{
         type: String,
         required:true
@@ -13,7 +19,7 @@ const NotesSchema = new Schema({
     },
     tags:{
         type: String,
-        default:'general'
+        default:"General"
     },
     date:{
         type: Date,
@@ -21,4 +27,4 @@ const NotesSchema = new Schema({
     },
 });
 
-module.export=mongoose.model('notes',NotesSchema);
+module.exports=mongoose.model('notes',NotesSchema);
