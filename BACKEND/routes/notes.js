@@ -5,13 +5,13 @@ const Notes = require("../models/Notes");
 const { body, validationResult } = require("express-validator");
 // fetch all Notes using GET /api/notes/fetchnotes login required
 router.get("/fetchnotes", fetchuser, async (req, res) => {
-    try {
+  try {
     const notes = await Notes.find({ user: req.user.id });
     res.json(notes);
-    } catch (error) {
-        console.error(error.message);
-        res.status(500).send("Internal server Error");
-    }
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internal server Error");
+  }
 });
 
 // add a new Note using POST /api/notes/addnote login required
@@ -26,24 +26,81 @@ router.post(
   ],
   async (req, res) => {
     try {
-    console.log(req.body);
-    console.log(req.body.tags);
-    const {title,description,tags}=req.body;
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    const note = new Notes({
-        title,description,tags,user:req.user.id
-    })
+      const { title, description, tags } = req.body;
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      const note = new Notes({
+        title,
+        description,
+        tags,
+        user: req.user.id,
+      });
 
-    const savedNote=await note.save();
-    res.json(savedNote);
+      const savedNote = await note.save();
+      res.json(savedNote);
     } catch (error) {
-        console.error(error.message);
-        res.status(500).send("Internal server Error");
+      console.error(error.message);
+      res.status(500).send("Internal server Error");
     }
   },
 );
+
+// Update an existing Note using PUT /api/notes/updatenote login required
+router.put("/updatenote/:id", fetchuser, async (req, res) => {
+  const { title, description, tags } = req.body;
+  try {
+    // Create a newNote object
+    const newNote = {};
+    if (title) {
+      newNote.title = title;
+    }
+    if (description) {
+      newNote.description = description;
+    }
+    if (tags) {
+      newNote.tags = tags;
+    }
+    // Find the note to be updated and update it
+    let note = await Notes.findById(req.params.id);
+    if (!note) {
+      return res.status(404).send("Not Found");
+    }
+    if (note.user.toString() !== req.user.id) {
+      return res.status(401).send("Not Allowed");
+    }
+
+    note = await Notes.findByIdAndUpdate(
+      req.params.id,
+      { $set: newNote },
+      { new: true },
+    );
+    res.json({ note });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internal server Error");
+  }
+});
+
+// Delete an existing Note using DELETE /api/notes/deletenote login required
+router.delete("/deletenote/:id", fetchuser, async (req, res) => {
+  try {
+    // Find the note to be deleted and delete it
+    let note = await Notes.findById(req.params.id);
+    if (!note) {
+      return res.status(404).send("Not Found");
+    }
+    // Allow deletion only if user owns this Note
+    if (note.user.toString() !== req.user.id) {
+      return res.status(401).send("Not Allowed");
+    }
+    await Notes.findByIdAndDelete(req.params.id);
+    res.json({ Success: "Note has been deleted", note: note });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internal server Error");
+  }
+});
 
 module.exports = router;
