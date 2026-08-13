@@ -14,7 +14,7 @@ const fetchuse = (req, res, next) => {
         next();
     }
     catch (error) {
-        res.status(401).send({ error: "Please authenticate using a valid token" });
+        return res.status(401).send({ error: "Please authenticate using a valid token" });
     }
 }
 
