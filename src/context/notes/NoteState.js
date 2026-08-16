@@ -31,20 +31,9 @@ const NoteState=(props)=>{
             },
                 body: JSON.stringify({title,description,tag})
             });
-            const json=await response.json();
-            console.log(json)
-           
-        const note = {
-            _id: Date.now().toString(),
-            user: "6a708f8af233dec4741b722c",
-            title: title,
-            description: description,
-            tag: tag,
-            date: new Date().toISOString(),
-            __v: 0
-        };
-        setnotes(notes.concat(note))
-    }
+            const note=await response.json();
+            setnotes(notes.concat(note))
+        }
     // Delete Notes
     const deleteNote=async (id)=>{
         // TODO API
@@ -56,8 +45,6 @@ const NoteState=(props)=>{
             },
             });
             const json=await response.json()
-            console.log(json)
-            console.log("Deleting note with id" + id)
             const newNotes=notes.filter((note)=>{return note._id !==id})
             setnotes(newNotes)
     }
@@ -72,7 +59,6 @@ const NoteState=(props)=>{
                 body: JSON.stringify({title,description,tag})
             });
             const json=await response.json();
-            console.log(json)
 
         let newNotes=JSON.parse(JSON.stringify(notes));
         for (let index = 0; index < newNotes.length; index++) {

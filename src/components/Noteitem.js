@@ -15,7 +15,6 @@ const Noteitem = (props) => {
               className="mx-2"
               style={{ cursor: "pointer" }}
               onClick={() => {
-                console.log("Trash clicked");
                 deleteNote(note._id);
               }}
             >
@@ -26,7 +25,6 @@ const Noteitem = (props) => {
               className="mx-2"
               style={{ cursor: "pointer" }}
               onClick={() => {
-                console.log("Edit clicked");
                 updateNote(note);
               }}
             >
