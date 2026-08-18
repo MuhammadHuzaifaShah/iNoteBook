@@ -18,7 +18,6 @@ const Login = () => {
         if (json.success){
             // redirect
             localStorage.setItem('token', json.authToken);
-            console.log("Navigating...");
             navigate("/")
         }else{
             alert("Invalid Credentials");
