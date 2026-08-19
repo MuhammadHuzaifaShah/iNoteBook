@@ -16,7 +16,7 @@ const Noteitem = (props) => {
               style={{ cursor: "pointer" }}
               onClick={() => {
                 deleteNote(note._id);
-              }}
+              props.showAlert("Deleted Successfully", "success");}}
             >
               <i className="fa-solid fa-trash"></i>
             </span>
@@ -25,8 +25,7 @@ const Noteitem = (props) => {
               className="mx-2"
               style={{ cursor: "pointer" }}
               onClick={() => {
-                updateNote(note);
-              }}
+                updateNote(note);}}
             >
               <i className="fa-regular fa-pen-to-square"></i>
             </span>
