@@ -1,14 +1,32 @@
-# Frontend deployment
+# Deploy the complete iNoteBook app
 
-The React frontend can be hosted as a static site. The Express backend and MongoDB must be hosted separately for login, signup, and note storage to work online.
+The Render Blueprint in `render.yaml` hosts React and Express together. MongoDB Atlas provides the database. The current private frontend preview is separate and does not automatically change when you deploy this service.
 
-1. Deploy the backend with a hosted MongoDB connection and an environment-based JWT secret (the current backend is configured for local development).
-2. Set `REACT_APP_API_URL` to your HTTPS backend origin, such as `https://your-api.example.com`. Do not append `/api`. Never put database credentials or JWT secrets in a `REACT_APP_` variable.
-3. Run `npm ci` and `npm run build`. Publish `build/` and route frontend URLs back to `index.html`.
-4. On Vercel, import this repository, use the repository root, and add `REACT_APP_API_URL` before building. The included `vercel.json` configures the frontend build and routing; it does not deploy `BACKEND/`.
+1. Push the supplied patches to your GitHub repository.
+2. Create a MongoDB Atlas database and database user. Set its network access to allow your Render service's outbound IP ranges. Use Atlas's Drivers connection string with the database name `inotebook` and URL-encode special characters in the password.
+3. In Render, choose New > Blueprint and connect this repository.
+4. Enter the Atlas connection string as the secret `MONGODB_URI`. The Blueprint generates `JWT_SECRET` and supplies all other build settings.
+5. Deploy, wait for the health check to pass, then open the resulting Render URL. Create an account and verify creating, editing, and deleting a note.
 
-Without a configured production API URL, the deployed frontend explicitly shows a preview notice and disables account submissions. Local development continues to use `http://localhost:5000`.
+Do not commit database credentials or JWT secrets. Store them in your hosting environment. Existing local MongoDB notes are not automatically copied to Atlas.
 
-## Local use
+## Manual Render settings
 
-Run the backend and MongoDB as before, then run `npm start` in the repository root. The UI preserves the existing token and API endpoints. Tags now use the backend's actual `tags` field.
+- Repository root: leave blank
+- Build: `npm ci --include=dev && npm ci --prefix BACKEND --omit=dev && npm run build`
+- Start: `node BACKEND/index.js`
+- Health check: `/health`
+- `NODE_ENV`: `production`
+- `REACT_APP_API_URL`: `same-origin`
+- `MONGODB_URI`: your Atlas connection string
+- `JWT_SECRET`: a cryptographically random value of at least 32 characters
+
+The server waits for MongoDB before listening, uses the host-provided port, serves React routes, and returns API errors as JSON. Authentication tokens expire after seven days. Without JWT_SECRET in local development, a temporary secret is generated per server start, so log in again after restarting.
+
+## Separate frontend hosting
+
+For Vercel or the private preview, set `REACT_APP_API_URL` to the HTTPS backend origin before building. Set `FRONTEND_URL` on the backend to the frontend's exact origin. The included `vercel.json` hosts only the frontend.
+
+## Local development
+
+Start MongoDB, run `npm ci` in the root and `npm ci --prefix BACKEND`, then run `npm run both`. The default local API is `http://localhost:5000` and MongoDB is `mongodb://127.0.0.1:27017/inotebook`. Set backend environment variables through your shell; `.env` files are not loaded automatically.

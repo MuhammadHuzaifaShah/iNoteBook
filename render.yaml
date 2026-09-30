@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: inotebook
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev && npm ci --prefix BACKEND --omit=dev && npm run build
+    startCommand: node BACKEND/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 22.16.0
+      - key: REACT_APP_API_URL
+        value: same-origin
+      - key: JWT_SECRET
+        generateValue: true
+      - key: MONGODB_URI
+        sync: false

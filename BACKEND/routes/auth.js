@@ -6,8 +6,7 @@ const router = express.Router();
 var jwt = require("jsonwebtoken");
 var fetchuser = require("../middleware/fetchuser");
 
-const JWT_SECRET =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+const { jwtSecret: JWT_SECRET } = require('../config');
 // Create user using post /api/auth/createuser ==>login required
 router.post(
   "/createUser",
@@ -43,7 +42,7 @@ router.post(
           id: user.id,
         },
       };
-      const authToken = jwt.sign(data, JWT_SECRET);
+      const authToken = jwt.sign(data, JWT_SECRET, { expiresIn: '7d' });
       success=true;
       res.status(201).json({success, authToken });
     } catch (error) {
@@ -87,7 +86,7 @@ router.post(
           id: user.id,
         },
       };
-      const authToken = jwt.sign(payLoad, JWT_SECRET);
+      const authToken = jwt.sign(payLoad, JWT_SECRET, { expiresIn: '7d' });
       success=true;
       res.status(201).json({ success,authToken });
     } catch (error) {
@@ -101,7 +100,7 @@ router.post(
 router.post(
   "/getUser",fetchuser,async (req, res) => {
     try {
-      userId = req.user.id;
+      const userId = req.user.id;
       const user = await User.findById(userId).select("-password");
       res.send(user);
     } catch (error) {

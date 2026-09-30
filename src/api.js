@@ -1,6 +1,6 @@
 const configuredHost = process.env.REACT_APP_API_URL;
 export const apiAvailable = Boolean(configuredHost) || process.env.NODE_ENV !== 'production';
-const host = (configuredHost || 'http://localhost:5000').replace(/\/$/, '');
+const host = configuredHost === 'same-origin' ? '' : (configuredHost || 'http://localhost:5000').replace(/\/$/, '');
 
 export async function request(path, { method = 'GET', body, authenticated = true } = {}) {
   if (!apiAvailable) throw new Error('The online notebook is not connected yet. Please try again once the server is available.');
