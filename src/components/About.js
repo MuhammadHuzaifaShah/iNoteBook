@@ -1,12 +1,4 @@
-import React from 'react'
-
-const About = () => {
-  
-  return (
-    <div>
-      This is About page.
-    </div>
-  )
+import { Link } from 'react-router-dom';
+export default function About() {
+  return <section className="about-page"><p className="eyebrow">LESS CLUTTER. MORE CLARITY.</p><h1>A small space for<br /><span>your big ideas.</span></h1><p className="about-intro">iNoteBook is your personal place to capture thoughts, organize class notes, and keep everyday plans within reach.</p><div className="about-grid">{[['01', 'Capture the moment', 'Write down an idea before it slips away. Give it a title, add the details, and make it yours.'], ['02', 'Find your focus', 'Group notes with tags and search by a word, a thought, or a topic. Less searching, more doing.'], ['03', 'Keep moving forward', 'Revisit, edit, and refine your notes as your ideas grow. A notebook that keeps up with you.']].map(([n, title, copy]) => <article key={n}><span className="section-kicker">{n}</span><h2>{title}</h2><p className="muted">{copy}</p></article>)}</div><Link className="button" to="/">Open your notebook <span aria-hidden="true">→</span></Link></section>;
 }
-
-export default About

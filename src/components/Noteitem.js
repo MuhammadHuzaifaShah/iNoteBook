@@ -1,40 +1,8 @@
-import React, { useContext } from "react";
-import noteContext from "../context/notes/noteContext";
-
-const Noteitem = (props) => {
-  const context = useContext(noteContext);
-  const { deleteNote } = context;
-  const { note, updateNote } = props;
-  return (
-    <div className="col-md-3">
-      <div className="card my-3">
-        <div className="card-body">
-          <div className="d-flex align-items-center">
-            <h5 className="card-title">{note.title}</h5>
-            <span
-              className="mx-2"
-              style={{ cursor: "pointer" }}
-              onClick={() => {
-                deleteNote(note._id);
-              props.showAlert("Deleted Successfully", "success");}}
-            >
-              <i className="fa-solid fa-trash"></i>
-            </span>
-
-            <span
-              className="mx-2"
-              style={{ cursor: "pointer" }}
-              onClick={() => {
-                updateNote(note);}}
-            >
-              <i className="fa-regular fa-pen-to-square"></i>
-            </span>
-          </div>
-          <p className="card-text">{note.description}</p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default Noteitem;
+export default function Noteitem({ note, updateNote, onDelete }) {
+  const date = note.date && new Date(note.date);
+  return <article className="note-card">
+    <div className="note-top"><span className="tag">{note.tags || note.tag || 'General'}</span><span className="note-date">{date && !Number.isNaN(date.getTime()) ? date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : ''}</span></div>
+    <h3>{note.title}</h3><p className="note-description">{note.description}</p>
+    <div className="note-actions"><button onClick={() => updateNote(note)} aria-label={`Edit ${note.title}`}>Edit note <span aria-hidden="true">↗</span></button><button className="delete-button" onClick={() => onDelete(note)} aria-label={`Delete ${note.title}`}>Delete</button></div>
+  </article>;
+}

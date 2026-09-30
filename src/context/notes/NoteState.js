@@ -1,84 +1,26 @@
-import React, { useState } from "react";
-import noteContext from "./noteContext";
-
-
-const NoteState=(props)=>{
-
-    const host="http://localhost:5000"
-    const notesInitial=[]
-    const [notes,setnotes]=useState(notesInitial)
-    // Add Notes
-    const getNotes=async ()=>{
-        // TO DO api call
-        const response = await fetch(`${host}/api/notes/fetchnotes`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "auth-token": localStorage.getItem('token')
-            }
-            });
-           
-            const json=await response.json();
-            setnotes(json)
-    }
-    const addNote=async (title, description, tag)=>{
-        // TO DO api call
-        const response = await fetch(`${host}/api/notes/addnote`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "auth-token": localStorage.getItem('token')
-            },
-                body: JSON.stringify({title,description,tag})
-            });
-            const note=await response.json();
-            setnotes(notes.concat(note))
-        }
-    // Delete Notes
-    const deleteNote=async (id)=>{
-        // TODO API
-        const response = await fetch(`${host}/api/notes/deletenote/${id}`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-                "auth-token": localStorage.getItem('token')
-            },
-            });
-            const json=await response.json()
-            console.log(json)
-            const newNotes=notes.filter((note)=>{return note._id !==id})
-            setnotes(newNotes)
-    }
-    // Edit Notes
-    const editNote=async (id,title,description,tag)=>{
-        const response = await fetch(`${host}/api/notes/updatenote/${id}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "auth-token": localStorage.getItem('token')
-            },
-                body: JSON.stringify({title,description,tag})
-            });
-            const json=await response.json();
-            console.log(json)
-
-        let newNotes=JSON.parse(JSON.stringify(notes));
-        for (let index = 0; index < newNotes.length; index++) {
-            const element = newNotes[index];
-            if(element._id===id){
-                newNotes[index].title=title;
-                newNotes[index].description=description;
-                newNotes[index].tag=tag;
-                break;
-            }
-        }
-        setnotes(newNotes)
-    }
-    return(
-        <noteContext.Provider value={{notes,setnotes,addNote,deleteNote,editNote,getNotes}}>
-            {props.children}
-        </noteContext.Provider>
-    )
+import { useCallback, useState } from 'react';
+import noteContext from './noteContext';
+import { request } from '../../api';
+export default function NoteState({ children }) {
+  const [notes, setnotes] = useState([]);
+  const getNotes = useCallback(async () => {
+    const data = await request('/notes/fetchnotes');
+    if (!Array.isArray(data)) throw new Error('Could not load your notes. Please try again.');
+    setnotes(data);
+  }, []);
+  async function addNote(title, description, tag) {
+    const note = await request('/notes/addnote', { method: 'POST', body: { title, description, tags: tag || 'General' } });
+    if (!note?._id) throw new Error('Could not save your note. Please try again.');
+    setnotes(current => [...current, note]);
+  }
+  async function deleteNote(id) {
+    await request(`/notes/deletenote/${id}`, { method: 'DELETE' });
+    setnotes(current => current.filter(note => note._id !== id));
+  }
+  async function editNote(id, title, description, tag) {
+    const data = await request(`/notes/updatenote/${id}`, { method: 'PUT', body: { title, description, tags: tag || 'General' } });
+    if (!data?.note?._id) throw new Error('Could not update your note. Please try again.');
+    setnotes(current => current.map(note => note._id === id ? data.note : note));
+  }
+  return <noteContext.Provider value={{ notes, setnotes, getNotes, addNote, deleteNote, editNote }}>{children}</noteContext.Provider>;
 }
-
-export default NoteState;
